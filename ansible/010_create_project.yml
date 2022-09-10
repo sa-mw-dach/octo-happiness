@@ -1,0 +1,44 @@
+---
+- name: test_repo
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+    - vault.yml
+
+  vars:
+    repo_tmp_dir: "/tmp/helm_repo_octo"
+
+  tasks:
+
+    - fail: msg="The variable 'app_name' is not defined"
+      when: app_name is undefined
+
+    - fail: msg="The variable 'template_lang' is not defined"
+      when: template_lang is undefined
+
+    - set_fact:
+        template_repo: "https://github.com/{{templates[template_lang]['repo']}}.git"  
+
+    - set_fact:
+        template_chart_ref: "{{templates[template_lang]['chart_ref']}}"  
+
+
+    - name: Git clone stable repo on HEAD
+      ansible.builtin.git:
+        repo: "{{template_repo}}"
+        dest: "{{repo_tmp_dir}}"
+
+    - name: Deploy test chart from local path
+      kubernetes.core.helm:
+        name: test-chart
+        chart_ref: "{{repo_tmp_dir}}/{{template_chart_ref}}"
+        release_namespace: "{{app_name}}"
+        create_namespace: true
+
+    - name: Fork repo
+      ansible.builtin.shell: |
+        export GH_TOKEN={{gh_token}}
+        gh repo fork {{template_repo}} --fork-name {{app_name}} --clone=false

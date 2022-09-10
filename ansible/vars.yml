@@ -1,0 +1,10 @@
+templates:
+  java:
+    repo: sa-mw-dach/octo-happiness-template-java
+    chart_ref: tbd
+  node:
+    repo: sa-mw-dach/octo-happiness-template-node
+    chart_ref: tbd
+  test:
+    repo: sa-mw-dach/octo-happiness
+    chart_ref: tests/octo-test
