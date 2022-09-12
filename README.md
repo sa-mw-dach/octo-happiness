@@ -1,13 +1,16 @@
 # octo-happiness
 
-
+octo-happiness is a playground and demo for creating pipeline projects on demand. The Ansible playbooks wrap the "odering" process. 
 
 
 ## Prerequisites for the Ansible playbook to create pipeline projects
 
-By default, the Github user `happy-octo` will be used to fork the template repo. This repo contains a Github tokne in the Ansible vault `vault.yml`
+By default, the Github user `happy-octo` will be used to fork the template repo. This repo contains a `happy-octo`  Github token in the Ansible vault `vault.yml`
 
-### RHEL 8 in AWS
+In future versions, the prerequisites will be covered in a custom execution environment.
+
+
+### RHEL 8 (on AWS)
 
 Git:
 ```
@@ -41,12 +44,17 @@ sudo mv helm-linux-amd64 /usr/local/bin/helm
 sudo chmod +x /usr/local/bin/helm
 ```
 
-login into you openshift cluster
+
+
+## Deploy a test chart
+
+
+First, login into your OpenShift cluster, where the test chart should be deployed:
 ```
 oc login ....
 ```
 
-Clone Repo:
+Clone this Repo:
 ```
 git clone https://github.com/sa-mw-dach/octo-happiness.git
 cd octo-happiness
@@ -54,21 +62,17 @@ cd octo-happiness
 
 Set Ansible vault password file
 ```
-echo replay-with-my-secret-password >> ansible/vault-password-file
+echo replace-with-the-vault-password >> ansible/vault-password-file
 ```
 
+Run a test. The playbook is going to create a new target Git repository on GitHub, by forking the template repository.
+In this case, the `template_lang=test`, there current repository is used as test template. The playbooks install a helm chart into the OpenShift project for this pipeline project.
 
-
-### Deploy a test chart
 
 ```
 cd ansible
 ansible-playbook --vault-password-file vault-password-file 010_create_project.yml -e "app_name=my-octo template_lang=test"
 ```
-
-
-
-
 
 
 
