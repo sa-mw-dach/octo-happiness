@@ -1,16 +1,14 @@
 # octo-happiness
 
-octo-happiness is a playground and demo for creating pipeline projects on demand. The Ansible playbooks wrap the "odering" process. 
+octo-happiness is a playground and demo for creating pipeline projects on demand. The Ansible playbooks wrap the "odering" process.
 
 
 ## Prerequisites for the Ansible playbook to create pipeline projects
 
-By default, the Github user `happy-octo` will be used to fork the template repo. This repo contains a `happy-octo`  Github token in the Ansible vault `vault.yml`
-
 In future versions, the prerequisites will be covered in a custom execution environment.
 
 
-### RHEL 8 (on AWS)
+### Install prerequisites - RHEL 8 example
 
 Git:
 ```
@@ -46,27 +44,50 @@ sudo chmod +x /usr/local/bin/helm
 
 
 
-## Deploy a test chart
+## Deploy a test chart project
+
+By default, the Github user `happy-octo` will be used to fork the template repo. This repo contains a `happy-octo`  Github token in the Ansible vault `vault.yml`
 
 
-First, login into your OpenShift cluster, where the test chart should be deployed:
-```
-oc login ....
-```
-
-Clone this Repo:
+**Clone this Repo:**
 ```
 git clone https://github.com/sa-mw-dach/octo-happiness.git
 cd octo-happiness
 ```
 
-Set Ansible vault password file
+**Configure target Github account:**
+
+- Create a new Github account manually or use own account. 
+- Create a Github Personal access token
+  - Github -> Settings -> Developer setting -> Personal access tokens -> Generate new token
+  - Check only repo
+  - Copy token and save it temporarily
+
+
+**Save the Github token in a Ansible vault:**
+
+Configure a vault-password-file:
 ```
-echo replace-with-the-vault-password >> ansible/vault-password-file
+echo replace-with-your-own-vault-password > ansible/vault-password-file
 ```
 
-Run a test. The playbook is going to create a new target Git repository on GitHub, by forking the template repository.
-In this case, the `template_lang=test`, there current repository is used as test template. The playbooks install a helm chart into the OpenShift project for this pipeline project.
+Save the Github token in the Ansible `ansible/vault.yaml` as variable `gh_token: 'ghp_********'`:
+
+```
+echo replace-with-your-own-vault-password > ansible/vault-password-file
+ansible-vault edit --vault-password-file ansible/vault-password-file vault.yml
+```
+Enter the variable and save the file.
+
+
+Login into your target OpenShift cluster, where the test chart should be deployed:
+```
+oc login ....
+```
+
+Run the test. The playbook is going to create a new target Git repository on GitHub, by forking the template repository.
+
+In this case, the `template_lang=test`, the current repository is used as test template. The playbook installs a helm chart into the OpenShift project for this pipeline project.
 
 
 ```
@@ -74,5 +95,24 @@ cd ansible
 ansible-playbook --vault-password-file vault-password-file 010_create_project.yml -e "app_name=my-octo template_lang=test"
 ```
 
+## Create a Java Template based pipeline project
+
+Prerequisites:
+- OpenShift with OpenShift Pipelines (Tekton) deployed
+- Prerequisites of this GitHub repo
+- Target Github account configured
+- Ansible vault with Github token configured
 
 
+Create the project:
+The playbook will perform following steps:
+- Fork the template repository into the target Github account
+- Clone the repository into a local temp directory
+- Deploy the template helm chart including a build pipeline
+- The pipeline will be started automatically.
+    
+
+```
+cd ansible
+ansible-playbook --vault-password-file vault-password-file 010_create_project.yml -e "app_name=my-octo-java template_lang=java"
+```

@@ -26,19 +26,27 @@
         template_chart_ref: "{{templates[template_lang]['chart_ref']}}"  
 
 
-    - name: Git clone stable repo on HEAD
+    - name: Fork template repo
+      ansible.builtin.shell: |
+        export GH_TOKEN={{gh_token}}
+        gh repo fork {{template_repo}} --fork-name {{app_name}} --clone=false
+
+    - name: Clone repo into local temp directory 
       ansible.builtin.git:
         repo: "{{template_repo}}"
         dest: "{{repo_tmp_dir}}"
 
-    - name: Deploy test chart from local path
+    - name: Deploy chart from local path
       kubernetes.core.helm:
-        name: test-chart
+        name: "octo-{{app_name}}-{{template_lang}}"
         chart_ref: "{{repo_tmp_dir}}/{{template_chart_ref}}"
         release_namespace: "{{app_name}}"
         create_namespace: true
 
-    - name: Fork repo
-      ansible.builtin.shell: |
-        export GH_TOKEN={{gh_token}}
-        gh repo fork {{template_repo}} --fork-name {{app_name}} --clone=false
+
+    - name: Recursively remove local temp directory
+      ansible.builtin.file:
+        path: /tmp/helm_repo_octo
+        state: absent
+
+

@@ -1,7 +1,7 @@
 templates:
   java:
-    repo: sa-mw-dach/octo-happiness-template-java
-    chart_ref: tbd
+    repo: stefan-bergstein/octo-happiness-template-java
+    chart_ref: infra/helm
   node:
     repo: sa-mw-dach/octo-happiness-template-node
     chart_ref: tbd
