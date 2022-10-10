@@ -71,13 +71,18 @@ Configure a vault-password-file:
 echo replace-with-your-own-vault-password > ansible/vault-password-file
 ```
 
-Save the Github token in the Ansible `ansible/vault.yaml` as variable `gh_token: 'ghp_********'`:
+Save the Github token in a new Ansible `ansible/vault.yaml` file as variable `gh_token: 'ghp_********'`:
 
+
+Create a new, plain, unencrypted vault file with your GitHub token. E.g.,
 ```
-echo replace-with-your-own-vault-password > ansible/vault-password-file
-ansible-vault edit --vault-password-file ansible/vault-password-file vault.yml
+echo "gh_token: 'ghp_********'" > ansible/vault.yaml
 ```
-Enter the variable and save the file.
+
+Create a vault file:
+```
+ansible-vault encrypt --vault-password-file ansible/vault-password-file ansible/vault.yml
+```
 
 
 Login into your target OpenShift cluster, where the test chart should be deployed:
